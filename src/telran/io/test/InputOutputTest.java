@@ -69,16 +69,14 @@ String directoryName = "myDirectory1/myDirectory2";
 	
 	void printDirectoryFiles(String _path, int maxLevel) {
 		Path path = Path.of(_path);
+		int initialCounter = path.toAbsolutePath().getNameCount();
 		try {
 			if (maxLevel<1) {
 				maxLevel = Integer.MAX_VALUE;
 			}		
 			
 	        try (Stream<Path> walk = Files.walk(path, maxLevel, new FileVisitOption[] {})) {
-	        	walk.map(f -> {
-	            	int level = (int)f.toAbsolutePath().toString().replace(path.toAbsolutePath().toString(), "").chars().filter(c -> c == '\\').count();
-	            	return format(f.toFile(), level);
-	            	})
+	        	walk.map(f ->format(f.toFile(),f.toAbsolutePath().getNameCount() - initialCounter))
 	            		.forEach(System.out::println);;
 	        }
 		} catch (Exception ex) {}
