@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class InputOutputTest {
+	final int SKIP = 3;
 String fileName = "myFile";
 String directoryName = "myDirectory1/myDirectory2";
 	@BeforeEach
@@ -38,22 +39,22 @@ String directoryName = "myDirectory1/myDirectory2";
 
 	@Test
 	void printDirectoryFileTest() {
-		printDirectoryFile("D:\\Java\\Mine", 3);
+		printDirectoryFile(System.getProperty("user.home"), 3);
 	}
 	
 	void printDirectoryFile(String path, int maxLevel) {
 		// maxLevel - maximal level of printing, if maxLevel < 1, all levels should be printed		
 		File file = new File(path);
-		System.out.println(printLevel("", new File[] {file}, maxLevel, 0 ));		
+		System.out.println(displayLevel("", new File[] {file}, maxLevel, 0 ));		
 	}
 	
-	private String printLevel(String s, File[] files, int maxLevel, int currentLevel) {
+	private String displayLevel(String s, File[] files, int maxLevel, int currentLevel) {
 		if ((maxLevel>0 && currentLevel <= maxLevel) || maxLevel < 1) {
 			for (File f: files) {
 				s +=format(f, currentLevel)+"\n";
 				if (f.isDirectory()) {
 					try { 	// try-catch is useful for crashed and some kind of system/unreadable folders
-					s += printLevel("", f.listFiles(), maxLevel, currentLevel + 1);	
+					s += displayLevel("", f.listFiles(), maxLevel, currentLevel + 1);	
 					} catch (Exception ex) {}	
 				}
 			}			
@@ -64,7 +65,7 @@ String directoryName = "myDirectory1/myDirectory2";
 	
 	@Test
 	void printDirectoryFilesTest() {
-			printDirectoryFiles("D:\\Java\\Mine", 3);
+			printDirectoryFiles(System.getProperty("user.home"), 3);
 	}
 	
 	void printDirectoryFiles(String _path, int maxLevel) {
@@ -93,6 +94,6 @@ String directoryName = "myDirectory1/myDirectory2";
 		} else {
 			s+= " - file";
 		}
-		return " ".repeat(3*level) + s;
+		return " ".repeat(SKIP*level) + s;
 	}
 }
