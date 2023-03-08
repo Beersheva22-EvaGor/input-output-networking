@@ -1,26 +1,27 @@
 package telran.io.test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.*;
-import java.nio.file.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class InputOutputTest {
-	final int SKIP = 3;
-String fileName = "myFile";
-String directoryName = "myDirectory1/myDirectory2";
+	private static final int SPACES_LEVEL = 2;
+	String fileName = "myFile";
+	String directoryName = "myDirectory1/myDirectory2";
+
 	@BeforeEach
 	void setUp() throws Exception {
 		new File(fileName).delete();
 		new File(directoryName).delete();
 	}
+
 	@Test
 	@Disabled
 	void testFile() throws IOException {
@@ -28,72 +29,91 @@ String directoryName = "myDirectory1/myDirectory2";
 		assertTrue(f1.createNewFile());
 		File dir1 = new File(directoryName);
 		assertTrue(dir1.mkdirs());
+		System.out.println(dir1.getAbsolutePath());
+
 	}
-	
+
+	@Test
+	void printDirectoryFileTest() throws IOException {
+		System.out.println("*********************************Applying class File*********************");
+		printDirectoryFile("..", 2);
+	}
+
+	void printDirectoryFile(String path, int maxLevel) throws IOException {
+		// TODO based on class File
+		// path -directory path
+		// maxLevel - maximal level of printing, if maxLevel < 1, all levels should be
+		// printed
+		// output format
+		// <directory name (no points, no full absolute path)
+		// <node name> - dir | file
+		// <node_name> .....
+		// <node name> -
+		// <node name> - dir | file
+		// <node_name> .....
+		// <node name> -
+		File root = new File(path);
+		if (root.isDirectory()) {
+			if (maxLevel < 1) {
+				maxLevel = Integer.MAX_VALUE;
+			}
+			System.out.println(root.getCanonicalFile().getName());
+			printDirectory(root.listFiles(), maxLevel, 1);
+		}
+	}
+
+	private void printDirectory(File[] listFiles, int maxLevel, int level) {
+		if (level <= maxLevel) {
+			Arrays.stream(listFiles).forEach(node -> {
+				System.out.printf("%s%s - %s\n", " ".repeat(level * SPACES_LEVEL), node.getName(),
+						node.isFile() ? "file" : "dir");
+				if (node.isDirectory()) {
+					printDirectory(node.listFiles(), maxLevel, level + 1);
+				}
+			});
+		}
+
+	}
+
 	@Test
 	@Disabled
 	void testFiles() {
 		Path path = Path.of(".");
 		System.out.println(path.toAbsolutePath().getNameCount());
+
 	}
 
 	@Test
-	void printDirectoryFileTest() {
-		printDirectoryFile(System.getProperty("user.home"), 3);
-	}
-	
-	void printDirectoryFile(String path, int maxLevel) {
-		// maxLevel - maximal level of printing, if maxLevel < 1, all levels should be printed		
-		File file = new File(path);
-		System.out.println(displayLevel("", new File[] {file}, maxLevel, 0 ));		
-	}
-	
-	private String displayLevel(String s, File[] files, int maxLevel, int currentLevel) {
-		if ((maxLevel>0 && currentLevel <= maxLevel) || maxLevel < 1) {
-			for (File f: files) {
-				s +=format(f, currentLevel)+"\n";
-				if (f.isDirectory()) {
-					try { 	// try-catch is useful for crashed and some kind of system/unreadable folders
-					s += displayLevel("", f.listFiles(), maxLevel, currentLevel + 1);	
-					} catch (Exception ex) {}	
-				}
-			}			
-		}
-		return s;
+	void printDirectoryFilesTest() throws IOException {
+		System.out.println("*********************************Applying Class Files*********************");
+		printDirectoryFiles("..", 2);
 	}
 
-	
-	@Test
-	void printDirectoryFilesTest() {
-			printDirectoryFiles(System.getProperty("user.home"), 3);
-	}
-	
-	void printDirectoryFiles(String _path, int maxLevel) {
-		Path path = Path.of(_path);
-		int initialCounter = path.toAbsolutePath().getNameCount();
-		try {
-			if (maxLevel<1) {
-				maxLevel = Integer.MAX_VALUE;
-			}		
-			
-	        try (Stream<Path> walk = Files.walk(path, maxLevel, new FileVisitOption[] {})) {
-	        	walk.map(f ->format(f.toFile(),f.toAbsolutePath().getNameCount() - initialCounter))
-	            		.forEach(System.out::println);;
-	        }
-		} catch (Exception ex) {}
-		
+	void printDirectoryFiles(String path, int maxLevel) throws IOException {
+		// TODO based on class Files
+		// path -directory path
+		// maxLevel - maximal level of printing, if maxLevel < 1, all levels should be
+		// printed
+		// output format
+		// <directory name (no points, no full absolute path)
+		// <node name> - dir | file
+		// <node_name> .....
+		// <node name> -
+		// <node name> - dir | file
+		// <node_name> .....
+		// <node name>
+
+		Path directory = Path.of(path);
+		if (Files.isDirectory(directory)) {
+			directory = directory.toAbsolutePath().normalize();
+			int directoryLevel = directory.getNameCount();
+			Files.walk(directory, maxLevel).forEach(node -> {
+				System.out.printf("%s%s - %s\n",
+						" ".repeat((node.getNameCount() - directoryLevel) * SPACES_LEVEL),
+						node.getFileName(), Files.isDirectory(node) ? "dir" : "file");
+			});
+		}
+
 	}
 
-	private String format(File f, int level) {
-		String s = f.getName();
-		if (s.startsWith(".")) {
-			s = s.replaceFirst(".", "");
-		}
-		if (f.isDirectory()) {
-			s += " - dir";
-		} else {
-			s+= " - file";
-		}
-		return " ".repeat(SKIP*level) + s;
-	}
 }
