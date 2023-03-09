@@ -18,6 +18,6 @@ public class DisplayResult {
 	}
 	
 	public String toString() {
-		return String.format("file size = %.2f (Mb), copy time = %d (sec)", fileSize/1024/1024.0, copyTime);
+		return String.format("file size = %.2f (Mb), copy time = %d (ms)", fileSize/1024/1024.0, copyTime);
 	}
 }

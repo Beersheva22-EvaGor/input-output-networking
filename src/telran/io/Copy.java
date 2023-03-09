@@ -2,14 +2,14 @@ package telran.io;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 public abstract class Copy {
 	private String scrFilePath;
 	private String destFilePath;
 	private boolean overwrite;
-	private LocalDateTime start;
+	private Instant start;
 	private String copyName = "Copying";
 	
 	protected void setCopyName(String copyName) {
@@ -45,14 +45,15 @@ public abstract class Copy {
 	}
 	
 	DisplayResult getDisplayResult() {
-		long mseconds = Duration.between(start, LocalDateTime.now()).getSeconds();
+		ChronoUnit unit = ChronoUnit.MILLIS;
+		long mseconds = unit.between(start, Instant.now());
 		return  new DisplayResult(copySize(getDestFilePath()), mseconds) ;
 	}
 	
 	protected abstract void copyRun() throws Exception;
 	
 	public void runNDisplayResults() {
-		start = LocalDateTime.now();
+		start = Instant.now();
 		try {
 			System.out.println(copyName + " is running...");
 			if (Files.exists(Path.of(destFilePath)) && !overwrite) {
