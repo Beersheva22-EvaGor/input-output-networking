@@ -5,7 +5,6 @@ import java.io.PrintStream;
 public class SimpleStreamHandler implements Handler {
 	private PrintStream stream;	
 	public SimpleStreamHandler(PrintStream stream) {
-		super();
 		this.stream = stream;
 	}
 

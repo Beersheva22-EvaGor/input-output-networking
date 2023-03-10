@@ -44,8 +44,9 @@ public class Logger {
 	
 	private void levels(Level level, String message) {
 		if (this.level.ordinal() <= level.ordinal()) {
+			LoggerRecord rec = new LoggerRecord(Instant.now(), ZoneId.systemDefault().getId(), level, name, message);
 			for (Handler handler : handlers) {
-				handler.publish(new LoggerRecord(Instant.now(), ZoneId.systemDefault().getId(), level, name, message));
+				handler.publish(rec);
 			}
 		}
 	}
