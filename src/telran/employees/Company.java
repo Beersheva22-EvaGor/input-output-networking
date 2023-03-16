@@ -3,8 +3,10 @@ package telran.employees;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.logging.*;
+import java.util.stream.Collectors;
 
 public class Company implements ICompany {
 	private static final long serialVersionUID = 1L;
@@ -58,9 +60,9 @@ public class Company implements ICompany {
 		List<Employee> set = map.get(obj);
 		if (set == null) {
 			set = new ArrayList<>();
+			map.put(obj, set);
 		}
 		set.add(employee);
-		map.put(obj, set);
 	}
 
 	@Override
@@ -80,7 +82,9 @@ public class Company implements ICompany {
 	private <T> void removeFromMap(Map<T, List<Employee>> map, T obj, Employee employee) {
 		List<Employee> set = map.get(obj);
 		set.remove(employee);
-		map.put(obj, set);
+		if (set.size() == 0) {
+			map.remove(obj);
+		}
 	}
 
 	/* O[N] */
@@ -92,21 +96,22 @@ public class Company implements ICompany {
 	/* O[1] */
 	@Override
 	public List<Employee> getEmployeesByMonth(int month) {
-		return months.get(month);
+		List<Employee> res = months.get(month);
+		return res == null ? new ArrayList<Employee>() : res;
 	}
 
 	/* O[N] */
 	@Override
 	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
-		ArrayList<Employee> res = new ArrayList<>();
-		salaries.subMap(salaryFrom, salaryTo).values().forEach(l -> res.addAll(l));
+		List<Employee> res =  salaries.subMap(salaryFrom, salaryTo).values().stream().flatMap(List::stream).collect(Collectors.toList());
 		return res;
 	}
 
 	/* O[1] */
 	@Override
 	public List<Employee> getEmployeesByDepartment(String department) {
-		return departments.get(department);
+		List<Employee> res = departments.get(department);
+		return res == null ? new ArrayList<Employee>() : res;
 	}
 
 	/* O[1] */
@@ -138,7 +143,7 @@ public class Company implements ICompany {
 		
 		Field[] fields = Company.class.getDeclaredFields();
 		for(Field f : fields){
-			if (f.getName() != "LOG" && f.getName() != "serialVersionUID")
+			if (!(Modifier.isStatic(f.getModifiers()) || Modifier.isTransient(f.getModifiers())))
 			f.set(this, f.get(company));
 		}
 		

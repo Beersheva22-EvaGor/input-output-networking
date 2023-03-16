@@ -48,7 +48,7 @@ class CompanyTest {
 		expected.add(ivan);
 		expected.add(moshe);
 		assertEquals(expected, company.getEmployeesByMonth(1));
-		assertNull(company.getEmployeesByMonth(0));
+		assertEquals(new ArrayList<Employee>(), company.getEmployeesByMonth(0));
 	}
 
 	@Test
