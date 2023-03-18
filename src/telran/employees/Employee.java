@@ -3,9 +3,7 @@ package telran.employees;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Employee implements Serializable{
-
-	
+public class Employee implements Serializable{	
 	private static final long serialVersionUID = 1L;
 	long id;
 	String name;

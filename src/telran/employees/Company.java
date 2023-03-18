@@ -13,7 +13,6 @@ public class Company implements ICompany {
 	
 	private transient final Logger LOG = Logger.getLogger(Company.class.getName());
 
-
 	private HashMap<Long, Employee> mapMain = new HashMap<>(); // HashMap: key = id, value = Employee
 	private HashMap<Integer, List<Employee>> months = new HashMap<>(); // HashMap of months of birth 
 	private HashMap<String, List<Employee>> departments = new HashMap<>(); // HashMap of departments 

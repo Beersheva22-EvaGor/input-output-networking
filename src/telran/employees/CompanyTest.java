@@ -16,7 +16,7 @@ class CompanyTest {
 	Employee john = new Employee(1, "John", LocalDate.of(1990, 2, 2), "dep2", 10_000);
 	Employee sara = new Employee(2, "Sara", LocalDate.of(2000, 3, 4), "dep3", 15_000);
 	Employee moshe = new Employee(3, "Moshe", LocalDate.of(1975, 1, 1), department, 20_000);
-	
+
 	@BeforeEach
 	void setUp() {
 		company.addEmployee(ivan);
