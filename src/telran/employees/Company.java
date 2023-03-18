@@ -1,161 +1,111 @@
 package telran.employees;
 
-
-import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.logging.*;
-import java.util.stream.Collectors;
+import java.io.*;
 
 public class Company implements ICompany {
+
 	private static final long serialVersionUID = 1L;
-	
-	private transient final Logger LOG = Logger.getLogger(Company.class.getName());
-
-
-	private HashMap<Long, Employee> mapMain = new HashMap<>(); // HashMap: key = id, value = Employee
-	private HashMap<Integer, List<Employee>> months = new HashMap<>(); // HashMap of months of birth 
-	private HashMap<String, List<Employee>> departments = new HashMap<>(); // HashMap of departments 
-	private TreeMap<Integer, List<Employee>> salaries = new TreeMap<>(); // TreeMap: comparing salaries
-
-	private class CompanyIterator implements Iterator<Employee> {
-		Iterator<Long> iterKeys = mapMain.keySet().iterator();
-
-		@Override
-		public boolean hasNext() {
-			return iterKeys.hasNext();
-		}
-
-		@SuppressWarnings("unlikely-arg-type")
-		@Override
-		public Employee next() {
-			if (!hasNext()) {
-				throw new IllegalStateException();
-			}
-			return mapMain.get(iterKeys);
-		}
-	}
+	private HashMap<Long, Employee> employees = new HashMap<>();
+	private HashMap<Integer, Set<Employee>> employeesMonth = new HashMap<>();
+	private HashMap<String, Set<Employee>> employeesDepartment = new HashMap<>();
+	private TreeMap<Integer, Set<Employee>> employeesSalary = new TreeMap<>();
 
 	@Override
 	public Iterator<Employee> iterator() {
-		return new CompanyIterator();
+
+		return getAllEmployees().iterator();
 	}
 
 	@Override
-	public boolean addEmployee(Employee employee) {
-		boolean res = mapMain.put(employee.getId(), employee) == null;
-		if (res) {
-			// to HashMap of months
-			addToMap(months, employee.getBirthDate().getMonthValue(), employee);
-			// to HashMap of departments
-			addToMap(departments, employee.getDepartment(), employee);
-			// to TreeMap of salaries
-			addToMap(salaries, employee.getSalary(), employee);			
+	public boolean addEmployee(Employee empl) {
+		boolean res = false;
+		if (employees.putIfAbsent(empl.id, empl) == null) {
+			res = true;
+			addIndexMap(employeesMonth, empl.getBirthDate().getMonthValue(), empl);
+			addIndexMap(employeesDepartment, empl.getDepartment(), empl);
+			addIndexMap(employeesSalary, empl.getSalary(), empl);
 		}
+
 		return res;
 	}
 
-	private <T> void addToMap(Map<T, List<Employee>> map, T obj, Employee employee) {
-		List<Employee> set = map.get(obj);
-		if (set == null) {
-			set = new ArrayList<>();
-			map.put(obj, set);
-		}
-		set.add(employee);
+	private <T> void addIndexMap(Map<T, Set<Employee>> map, T key, Employee empl) {
+		map.computeIfAbsent(key, k -> new HashSet<>()).add(empl);
+
 	}
 
 	@Override
 	public Employee removeEmployee(long id) {
-		Employee employee = mapMain.remove(id);
-		if (employee != null) {
-			// from HashMap of months
-			removeFromMap(months, employee.getBirthDate().getMonthValue(), employee);
-			// from HashMap of departments
-			removeFromMap(departments, employee.getDepartment(), employee);
-			// from TreeMap of salaries
-			removeFromMap(salaries, employee.getSalary(), employee);
+		Employee empl = employees.remove(id);
+		if (empl != null) {
+			removeIndexMap(employeesMonth, empl.getBirthDate().getMonthValue(), empl);
+			removeIndexMap(employeesDepartment, empl.getDepartment(), empl);
+			removeIndexMap(employeesSalary, empl.getSalary(), empl);
 		}
-		return employee;
+		return empl;
 	}
 
-	private <T> void removeFromMap(Map<T, List<Employee>> map, T obj, Employee employee) {
-		List<Employee> set = map.get(obj);
-		set.remove(employee);
-		if (set.size() == 0) {
-			map.remove(obj);
+	private <T> void removeIndexMap(Map<T, Set<Employee>> map, T key, Employee empl) {
+		Set<Employee> set = map.get(key);
+		set.remove(empl);
+		if (set.isEmpty()) {
+			map.remove(key);
 		}
+
 	}
 
-	/* O[N] */
 	@Override
 	public List<Employee> getAllEmployees() {
-		return new ArrayList<Employee>(mapMain.values()); // shallow copy!!! (it suits for the current version of class)
+
+		return new ArrayList<>(employees.values());
 	}
 
-	/* O[1] */
 	@Override
-	public List<Employee> getEmployeesByMonth(int month) {
-		List<Employee> res = months.get(month);
-		return res == null ? new ArrayList<Employee>() : res;
+	public List<Employee> getEmployeesByMonthBirth(int month) {
+
+		return new ArrayList<>(employeesMonth.getOrDefault(month, Collections.emptySet()));
 	}
 
-	/* O[N] */
 	@Override
 	public List<Employee> getEmployeesBySalary(int salaryFrom, int salaryTo) {
-		List<Employee> res =  salaries.subMap(salaryFrom, salaryTo).values().stream().flatMap(List::stream).collect(Collectors.toList());
-		return res;
+
+		return employeesSalary.subMap(salaryFrom, true, salaryTo, true).values().stream().flatMap(Set::stream).toList();
 	}
 
-	/* O[1] */
 	@Override
 	public List<Employee> getEmployeesByDepartment(String department) {
-		List<Employee> res = departments.get(department);
-		return res == null ? new ArrayList<Employee>() : res;
+
+		return new ArrayList<>(employeesDepartment.getOrDefault(department, Collections.emptySet()));
 	}
 
-	/* O[1] */
 	@Override
 	public Employee getEmployee(long id) {
-		return mapMain.get(id);
+
+		return employees.get(id);
 	}
 
 	@Override
 	public void save(String pathName) {
-		try {
-			writeObject(pathName);
+		try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(pathName))) {
+			output.writeObject(getAllEmployees());
 		} catch (Exception e) {
-			LOG.severe(String.format("Serialization to the file %s failed\r\n %s", pathName, e.fillInStackTrace()));
+			throw new RuntimeException(e.toString()); // some error
 		}
+
 	}
 
-	private void writeObject(String pathName) throws Exception {
-		try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(pathName)))) {
-			output.writeObject(this);
-		} 		
-	}
-	
-	private void readObject(String pathName) throws Exception {
-		Company company = null;
-		try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(pathName))) {
-			company = (Company) input.readObject();
-		} 
-		
-		Field[] fields = Company.class.getDeclaredFields();
-		for(Field f : fields){
-			if (!(Modifier.isStatic(f.getModifiers()) || Modifier.isTransient(f.getModifiers())))
-			f.set(this, f.get(company));
-		}
-		
-	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public void restore(String pathName) {
-		try {
-			readObject(pathName);
+		try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(pathName))) {
+			List<Employee> allEmployees = (List<Employee>) input.readObject();
+			allEmployees.forEach(this::addEmployee);
+		} catch (FileNotFoundException e) {
+			// empty object but no error
 		} catch (Exception e) {
-			LOG.severe(String.format("Deserialization from the file failed%s \r\n %s", pathName,  e.fillInStackTrace()));
+			throw new RuntimeException(e.toString()); // some error
 		}
+
 	}
-
-
 }
