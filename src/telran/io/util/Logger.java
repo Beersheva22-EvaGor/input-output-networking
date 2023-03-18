@@ -2,53 +2,53 @@ package telran.io.util;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
 
 public class Logger {
 	private Level level = Level.INFO;
-	private ArrayList<Handler> handlers = new ArrayList<>();
+	private Handler handler;
 	private String name;
 
 	public Logger(Handler handler, String name) {
-		handlers.add(handler);
+		this.handler = handler;
 		this.name = name;
+	}
+
+	private LoggerRecord createLoggerRecord(String message, Level level) {
+		return new LoggerRecord(Instant.now(), ZoneId.systemDefault().toString(), level, name, message);
 	}
 
 	public void setLevel(Level level) {
 		this.level = level;
 	}
 
-	public void error(String message) {
-		levels(Level.ERROR, message);
-	}
-
-	public void warn(String message) {
-		levels(Level.WARN, message);
-	}
-
-	public void info(String message) {
-		levels(Level.INFO, message);
-	}
-
-	public void debug(String message) {
-		levels(Level.DEBUG, message);
-	}
-
-	public void trace(String message) {
-		levels(Level.TRACE, message);
-	}
-
-	public void addHandler(Handler handler) {
-		handlers.add(handler);
-	}
-	
-	private void levels(Level level, String message) {
-		if (this.level.ordinal() <= level.ordinal()) {
-			LoggerRecord rec = new LoggerRecord(Instant.now(), ZoneId.systemDefault().getId(), level, name, message);
-			for (Handler handler : handlers) {
-				handler.publish(rec);
-			}
+	private void publising(String message, Level level) {
+		if (this.level.compareTo(level) <= 0) {
+			LoggerRecord loggerRecord = createLoggerRecord(message, level);
+			handler.publish(loggerRecord);
 		}
 	}
 
+	public void error(String message) {
+		publising(message, Level.ERROR);
+
+	}
+
+	public void warn(String message) {
+		publising(message, Level.WARN);
+
+	}
+
+	public void info(String message) {
+		publising(message, Level.INFO);
+
+	}
+
+	public void debug(String message) {
+		publising(message, Level.DEBUG);
+
+	}
+
+	public void trace(String message) {
+		publising(message, Level.TRACE);
+	}
 }
