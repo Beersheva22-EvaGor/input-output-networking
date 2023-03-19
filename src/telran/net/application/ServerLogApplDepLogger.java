@@ -46,20 +46,26 @@ public class ServerLogApplDepLogger {
 			return "OK";
 		} else {
 			String level = input.replaceAll("counter#", "");
-			return String.format("Number of logs on level %s is %d", level, levels.get(level));
+			String[] s ={""};
+			levels.keySet().forEach(k -> s[0]+= String.format("\ton logger %s: %d", k, levels.get(k).get(level)));
+			return String.format("Number of logs on level %s is:%s", level, s[0]);
 		}
 	}
 
 	private static void increaseLevelCounter(String input) {
 		String loggerName = getArgument(input, "loggerName");
 		String level = getArgument(input, "level");
-		HashMap<String, Integer> levelsByLogger = levels.getOrDefault(loggerName, new HashMap<>());
+		HashMap<String, Integer> levelsByLogger = levels.get(loggerName);
+		if (levelsByLogger == null) {
+			levelsByLogger = fillMap();
+			levels.put(loggerName, levelsByLogger); 
+		}
 		Integer counter = levelsByLogger.get(level);
 		levelsByLogger.put(level, ++counter);
 	}
 
 	private static String getArgument(String input, String arg) {
-		Matcher match = Pattern.compile("arg: (.*?),").matcher(input);
+		Matcher match = Pattern.compile(arg + ": (.*?),").matcher(input);
 		match.find();
 		return  match.group(1);
 	}

@@ -15,6 +15,7 @@ class TcpClientHandlerTest {
 	private static final String HOSTNAME = "localhost";
 	static TcpClientHandler client;
 	static Logger logger;
+	static Logger logger1;
 
 	@BeforeAll
 	static void setUp() throws Exception {
@@ -22,7 +23,9 @@ class TcpClientHandlerTest {
 		PrintStream out = new PrintStream(socket.getOutputStream());
 		client = new TcpClientHandler(socket, out, new BufferedReader(new InputStreamReader(socket.getInputStream())));
 		logger = new Logger(client, "test-logger");
-		logger.setLevel(Level.TRACE);		
+		logger.setLevel(Level.TRACE);	
+		logger1 = new Logger(client, "test-logger1");
+		logger1.setLevel(Level.TRACE);	
 	}	
 
 	private void logging() {
@@ -32,11 +35,21 @@ class TcpClientHandlerTest {
 		logger.debug("debug message");
 		logger.trace("trace message");
 	}	
+	
+	private void logging1() {
+		logger1.error("error message");
+		logger1.warn("warn message");
+		logger1.info("info message");
+		logger1.debug("debug message");
+		logger1.trace("trace message");
+	}	
 
 	@Test
 	@Order(1)
 	void sendLogs() {
 		logging();
+		logging1();
+		logging1();
 	}
 
 	@Test
