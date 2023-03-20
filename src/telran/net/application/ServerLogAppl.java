@@ -2,6 +2,7 @@ package telran.net.application;
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,13 +14,13 @@ public class ServerLogAppl {
 	private static int PORT = 4500;
 	static HashMap<String, Integer> levels = new HashMap<>();
 
-	private static void fillMap(){
+	private static void fillMap() {
 		for (Level level : Level.values()) {
 			levels.put(level.name(), 0);
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		fillMap();
 		try (ServerSocket serverSocket = new ServerSocket(PORT);
 				Socket clientSocket = serverSocket.accept();
@@ -32,21 +33,33 @@ public class ServerLogAppl {
 				outputLine = logProtocol(inputLine);
 				out.println(outputLine);
 			}
-
-		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
 		}
-
 	}
 
-	private static String logProtocol(String input) {
-		if (input.startsWith("log")) {
+	private static String logProtocol(String input) throws Exception {
+		if (!checkRequestRight(input)) {
+			throw new IllegalArgumentException();
+		}
+		if (input.startsWith("log#")) {
 			increaseLevelCounter(input);
 			return "OK";
 		} else {
-			String level = input.replaceAll("counter#", "");
+			String level = input.replaceAll("counter#", "").toUpperCase();
 			return String.format("Number of logs on level %s is %d", level, levels.get(level));
 		}
+	}
+
+	private static boolean checkRequestRight(String input) {
+		String pattern1 = "(^(log#timestamp: (.*?), zoneId: (.*?), level: (.*?), loggerName: (.*?), message: (.*)))";
+		String pattern2 = "^(counter#(.*))";
+		boolean resCounter = false;
+		if (input.matches(pattern2)) {
+			Matcher match = Pattern.compile(pattern2).matcher(input);
+			match.find();
+			resCounter = Level.valueOf(match.group(2).toUpperCase()).name() != null;
+		}
+		return input.matches(pattern1) || resCounter;
+
 	}
 
 	private static void increaseLevelCounter(String input) {
