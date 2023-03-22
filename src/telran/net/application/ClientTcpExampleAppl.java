@@ -29,6 +29,7 @@ public class ClientTcpExampleAppl {
 				break;
 			}
 		}
+		scanner.close();
 		socket.close();
 	}
 }

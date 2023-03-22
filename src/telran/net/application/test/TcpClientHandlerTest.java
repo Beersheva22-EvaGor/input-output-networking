@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.*;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.*;
 import telran.io.util.*;
@@ -16,66 +18,78 @@ import telran.net.application.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TcpClientHandlerTest {
-	private static final int PORT = 4500;
-	private static final String HOSTNAME = "localhost";
-	static TcpClientHandler client;
-	static Socket socket;
-	static BufferedReader in;
-	static PrintStream out;
+	private static final int N_ERRORS = 1;
+	private static final int N_WARNS = 2;
+	private static final int N_INFOS = 3;
+	private static final int N_DEBUGS = 4;
+	private static final int N_TRACES = 5;
+	static Handler logHandler;
 	static Logger logger;
-	static Logger logger1;
+	static Socket socket;
+	static PrintStream stream;
+	static BufferedReader reader;
 
 	@BeforeAll
-	static void setUp() throws Exception {
-		socket = new Socket(HOSTNAME, PORT);
-		out = new PrintStream(socket.getOutputStream());
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		client = new TcpClientHandler(socket, out, in);
-		logger = new Logger(client, "test-logger");
-		logger.setLevel(Level.TRACE);	
-		logger1 = new Logger(client, "test-logger1");
-		logger1.setLevel(Level.TRACE);	
-	}	
-
-	private void logging() {
-		logger.error("error message");
-		logger.warn("warn message");
-		logger.info("info message");
-		logger.debug("debug message");
-		logger.trace("trace message");
-	}	
-	
-	private void logging1() {
-		logger1.error("error message");
-		logger1.warn("warn message");
-		logger1.info("info message");
-		logger1.debug("debug message");
-		logger1.trace("trace message");
-	}	
-
-	@Test
-	@Order(1)
-	void sendLogs() {
-		logging();
-		logging1();
-		logging1();
-	} 
-
-	@Test
-	void getLevels() throws IOException {
-		for (Level level : Level.values()) {
-			out.printf("counter#%s\r\n", level.name());
-			System.out.println(in.readLine());
-		}	
-		
-		out.printf("counter#%s\r\n", "trace");
-		System.out.println(in.readLine());			
+	static void createLogger() throws Exception {
+		logHandler = new TcpClientHandler("localhost", ServerLogAppl.PORT);
+		logger = new Logger(logHandler, "test-tcp-logger");
+		logger.setLevel(Level.TRACE);
+		socket = new Socket("localhost", ServerLogAppl.PORT);
+		stream = new PrintStream(socket.getOutputStream());
+		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	}
-	
+
+	@Order(1)
+	@Test
+	void sending() {
+		sendMessage(N_ERRORS, i -> logger.error("message" + i));
+		sendMessage(N_WARNS, i -> logger.warn("message" + i));
+		sendMessage(N_INFOS, i -> logger.info("message" + i));
+		sendMessage(N_DEBUGS, i -> logger.debug("message" + i));
+		sendMessage(N_TRACES, i -> logger.trace("message" + i));
+		logHandler.close();
+
+	}
+
+	private void sendMessage(int nSendings, IntConsumer consumer) {
+		IntStream.range(0, nSendings).forEach(consumer);
+	}
+
+	@Test
+	void counterErrorTest() throws Exception {
+		runCounterTest("ERROR", N_ERRORS);
+	}
+
+	@Test
+	void counterWarnTest() throws Exception {
+		runCounterTest("WARN", N_WARNS);
+	}
+
+	private void runCounterTest(String level, int nLogs) throws Exception {
+		stream.println("counter#" + level);
+		int actual = Integer.parseInt(reader.readLine());
+		assertEquals(nLogs, actual);
+
+	}
+
+	@Test
+	void counterInfoTest() throws Exception {
+		runCounterTest("INFO", N_INFOS);
+	}
+
+	@Test
+	void counterDebugTest() throws Exception {
+		runCounterTest("DEBUG", N_DEBUGS);
+	}
+
+	@Test
+	void counterTraceTest() throws Exception {
+		runCounterTest("TRACE", N_TRACES);
+	}
 
 	@AfterAll
-	public static void cleanUp() throws IOException {
-		client.close();
-		System.out.println("Client's closed");
+	static void closing() throws IOException {
+		socket.close();
 	}
+
 }

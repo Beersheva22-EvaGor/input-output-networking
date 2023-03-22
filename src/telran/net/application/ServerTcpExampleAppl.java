@@ -34,7 +34,7 @@ public class ServerTcpExampleAppl {
 		
 	}
 
-	private static String getResponse(String request) {
+	public static String getResponse(String request) {
 		String res = "Wrong Request";
 		String tokens[] = request.split("#");
 		if (tokens.length == 2) {
