@@ -19,20 +19,23 @@ public class TcpClient implements NetworkClient {
 	public void close() throws IOException {
 		socket.close();
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T send(String type, Serializable requestData) {
-		T responseObj = null;
+		Request request = new Request(type, requestData);
+		T res = null;
 		try {
-			output.writeObject(new Request(type, requestData));
-			responseObj = (T)input.readObject();
-						
+			output.writeObject(request);
+			Response response = (Response) input.readObject();
+			if(response.code != ResponseCode.OK) {
+				throw new Exception(response.data.toString());
+			}
+			res = (T) response.data;
 		} catch (Exception e) {
-			new RuntimeException(e.getMessage());
+			throw new RuntimeException(e.getMessage());
 		}
-		
-		return responseObj;
-	}
-	
+		return res;
+	}	
 	
 }

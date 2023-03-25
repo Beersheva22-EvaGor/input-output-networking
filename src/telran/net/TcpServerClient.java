@@ -18,7 +18,6 @@ public class TcpServerClient implements Runnable {
 		input = new ObjectInputStream(socket.getInputStream());
 		output = new ObjectOutputStream(socket.getOutputStream());
 	}
-
 	@Override
 	public void run() {
 		while (true) {
@@ -26,8 +25,7 @@ public class TcpServerClient implements Runnable {
 				Request request = (Request) input.readObject();
 				Response response = protocol.getResponse(request);
 				output.writeObject(response);
-			} catch (EOFException e) {			
-				// Implement Logging 
+			} catch (EOFException e) {	
 				System.out.println("client closed connection");
 				throw new RuntimeException("client closed connection");
 			} catch (Exception e) {
@@ -37,5 +35,6 @@ public class TcpServerClient implements Runnable {
 		}
 		
 	}
+
 
 }

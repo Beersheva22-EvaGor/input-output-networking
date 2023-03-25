@@ -2,22 +2,19 @@ package telran.net;
 
 import java.net.*;
 
-public class TcpServer implements Runnable {
+public class TcpServer extends Server {
 
-	private Protocol protocol;
-	private int port;
 	private ServerSocket serverSocket;
 	
-	public TcpServer(Protocol protocol, int port) throws Exception{
-		this.protocol = protocol;
-		this.port = port;
+	public TcpServer(Protocol protocol, int port) throws Exception {
+		super(protocol, port);
 		serverSocket = new ServerSocket(port);
 	}
 
 
 	@Override
 	public void run() {
-		System.out.println("Server listening on port " + this.port);
+		System.out.println("Tcp server listening on port " + this.port);
 		while (true) {
 			try {
 				Socket socket = serverSocket.accept();
