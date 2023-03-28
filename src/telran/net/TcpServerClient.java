@@ -20,17 +20,18 @@ public class TcpServerClient implements Runnable {
 	}
 	@Override
 	public void run() {
-		while (true) {
+		boolean running = true;
+		while(running) {
 			try {
 				Request request = (Request) input.readObject();
 				Response response = protocol.getResponse(request);
 				output.writeObject(response);
-			} catch (EOFException e) {	
+			} catch (EOFException e) {
 				System.out.println("client closed connection");
-				throw new RuntimeException("client closed connection");
-			} catch (Exception e) {
-				System.out.println(e.toString());
+				running = false;
+			} catch (Exception e)  {
 				throw new RuntimeException(e.toString());
+				
 			}
 		}
 		

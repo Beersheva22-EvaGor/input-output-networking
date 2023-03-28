@@ -24,7 +24,6 @@ public class UdpClient implements NetworkClient {
 
 	@Override
 	public void close() throws IOException {
-		send("", null);
 		socket.close();
 
 	}
