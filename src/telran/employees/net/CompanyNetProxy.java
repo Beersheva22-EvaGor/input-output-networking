@@ -1,13 +1,8 @@
 package telran.employees.net;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
-import telran.employees.Company;
-import telran.employees.Employee;
-import telran.employees.ICompany;
+import java.io.*;
+import java.util.*;
+import telran.employees.*;
 import telran.net.NetworkClient;
 
 public class CompanyNetProxy implements ICompany, Closeable {

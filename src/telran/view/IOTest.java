@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class IOTest {
-	StandartInputOutput io = new StandartInputOutput();
+	StandardInputOutput io = new StandardInputOutput();
 
 	@Test
 //	@Disabled

@@ -2,7 +2,6 @@
 package telran.employees.net.application;
 
 import telran.employees.Company;
-import telran.employees.ICompany;
 import telran.employees.net.CompanyProtocol;
 import telran.net.Protocol;
 import telran.net.TcpServer;
