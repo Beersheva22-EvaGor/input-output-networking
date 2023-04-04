@@ -12,19 +12,19 @@ public class CompanyUtils {
 		return String.format("Employee: id = %d, name = %s, date of birth = %s, department = %s, salary = %d",
 				e.getId(), e.getName(), e.getBirthDate().toString(), e.getDepartment(), e.getSalary());
 	}
-	public static String getCheckedDepartment(InputOutput io, ICompany company) {
+
+	public static String getCheckedDepartment(InputOutput io, ICompany company, List<String> departments) {
 		String nextLine = "\r\n";
 		String[] departmentsString = { "" };
+		int[] i = { 0 };
 		HashMap<Integer, String> depsMap = new HashMap<>();
-		Arrays.stream(Departments.values()).forEach(d -> {
-			int key = d.getKey();
-			String value = d.getValue();
-			depsMap.put(key, value);
-			departmentsString[0] += key + " - " + value + nextLine;
+		departments.forEach(d -> {
+			i[0]++;
+			departmentsString[0] += i[0] + " - " + d + nextLine;
 		});
-		departmentsString[0] = departmentsString[0].substring(0,departmentsString[0].length() - nextLine.length() - 1) ;
-		return  depsMap.get(io.readInt("Input number of department: \r\n" + departmentsString[0],
-				"Wrong department", 1, Departments.values().length));
+		departmentsString[0] = departmentsString[0].substring(0, departmentsString[0].length() - nextLine.length() - 1);
+		return depsMap.get(io.readInt("Input number of department: \r\n" + departmentsString[0], "Wrong department", 1,
+				departments.size()));
 	}
 
 }

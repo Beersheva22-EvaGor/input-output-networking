@@ -1,13 +1,13 @@
 package telran.employees.apllication.controller;
 
-import telran.employees.Company;
-import telran.employees.ICompany;
-import telran.view.InputOutput;
-import telran.view.StandardInputOutput;
+import java.util.*;
+
+import telran.employees.*;
+import telran.view.*;
 
 public class CompanyAppl {
 
-	private static InputOutput IO = new StandardInputOutput();
+	private static InputOutput IO;	
 	
 	public CompanyAppl(InputOutput IO) {
 		this.IO = IO;
@@ -19,7 +19,8 @@ public class CompanyAppl {
 	public static void main(String[] args) {
 		company = new Company();
 		restore();
-		CompanyControllerItems.mainMenu(IO, company).perform(IO);
+		List<String> departments = Arrays.stream(new String[]{"QA", "Development", "Audit","Management", "Accounting"}).toList();
+		CompanyControllerItems.mainMenu(IO, company, departments).perform(IO);
 		IO.writeLine("Thank you and goodbuy!");
 		save();
 	}

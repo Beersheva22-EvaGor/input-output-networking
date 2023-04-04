@@ -7,12 +7,12 @@ import telran.view.*;
 public class UserMenu {
 
 	
-	public static Item userItemMenu(InputOutput io, ICompany company) {
+	public static Item userItemMenu(InputOutput io, ICompany company, List<String> departments) {
 		return new Menu("User actions",
 				new Item[] { Item.of("Get all employees", x -> getAllEmployees(io, company)),
 						Item.of("Get employees by month birth", x -> getEmployeesByMonthBirth(io, company)),
 						Item.of("Get employees by salary", x -> getEmployeesBySalary(io, company)),
-						Item.of("Get employees by department", x -> getEmployeesByDepartment(io, company)),
+						Item.of("Get employees by department", x -> getEmployeesByDepartment(io, company, departments)),
 						Item.of("Get employee by ID", x -> getEmployee(io, company)), Item.exit() });
 	}
 
@@ -39,8 +39,8 @@ public class UserMenu {
 		displayEmployeesFromList(io, company.getEmployeesBySalary(salaryFrom, salaryTo));
 	}
 
-	private static void getEmployeesByDepartment(InputOutput io, ICompany company) {
-		String department = CompanyUtils.getCheckedDepartment(io, company);
+	private static void getEmployeesByDepartment(InputOutput io, ICompany company, List<String> departments) {
+		String department = CompanyUtils.getCheckedDepartment(io, company, departments);
 		displayEmployeesFromList(io, company.getEmployeesByDepartment(department));
 	}
 
