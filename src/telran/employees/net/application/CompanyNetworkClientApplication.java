@@ -36,7 +36,7 @@ public class CompanyNetworkClientApplication {
 	    		CompanyControllerItems.mainMenu(IO, companyNetProxy, departments).perform(IO);
 	    		IO.writeLine("Thank you and goodbuy!");
 	    		companyNetProxy.close();
-	        } catch(FileNotFoundException e) {
+ 	        } catch(FileNotFoundException e) {
 	        	IO.writeLine("Config file not found. Check existance and path");
 	        }
 	        catch (IllegalArgumentException e) {
