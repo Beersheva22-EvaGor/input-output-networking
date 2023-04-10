@@ -13,7 +13,7 @@ import telran.view.InputOutput;
 
 public class CompanyNetworkClientApplication {
 	private static final String BASE_PACKAGE = "telran.net";
-	static InputOutput IO = new Frame();
+	static InputOutput IO = new Frame("Employees' menu");
 	static String hostname;
 	static String clientName;
 	static int port;

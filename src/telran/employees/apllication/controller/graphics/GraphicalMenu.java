@@ -10,7 +10,7 @@ public class GraphicalMenu {
 
 	public static void main(String[] args) throws Exception {
 		
-		IO = new Frame();
+		IO = new Frame("Company operations menu");
 
 			CompanyAppl appl = new CompanyAppl(IO);
 			appl.main(null);

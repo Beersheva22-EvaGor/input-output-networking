@@ -18,8 +18,8 @@ public class Frame extends JFrame implements InputOutput, ActionListener {
 
 	boolean flPrompt = false;
 
-	public Frame() {
-		this.setTitle("Company operations menu");
+	public Frame(String title) {
+		this.setTitle(title);
 		image = new ImageIcon("backround.jpg").getImage();
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);

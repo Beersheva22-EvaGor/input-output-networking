@@ -28,6 +28,7 @@ public class UdpClient implements NetworkClient {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T send(String type, Serializable requestData) {
 		Request request = new Request(type, requestData);

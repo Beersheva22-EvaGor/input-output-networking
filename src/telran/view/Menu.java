@@ -20,7 +20,6 @@ public class Menu implements Item {
 
 	@Override
 	public String displayName() {
-
 		return name;
 	}
 
