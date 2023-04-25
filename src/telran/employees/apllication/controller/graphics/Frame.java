@@ -52,7 +52,26 @@ public class Frame extends JFrame implements InputOutput, ActionListener {
 				}
 			}
 		});
+		field.addKeyListener(new KeyListener() {
 
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					button.doClick();
+				} else if (flPrompt) {
+					field.setText("");
+					flPrompt = false;
+				}
+			}
+		});
 		this.add(field);
 	}
 
@@ -62,6 +81,11 @@ public class Frame extends JFrame implements InputOutput, ActionListener {
 		scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollableTextArea.setPreferredSize(new Dimension(400, 300));
+		scrollableTextArea.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				area.select(area.getHeight() + 1000000, 0);
+			}
+		});
 		this.getContentPane().add(scrollableTextArea);
 	}
 
@@ -90,9 +114,4 @@ public class Frame extends JFrame implements InputOutput, ActionListener {
 		}
 	}
 
-//	public void paint(Graphics g) {
-//		Graphics2D g2d = (Graphics2D) g;
-//		g2d.drawImage(image, 0, 0, getWidth(), getHeight(), this);
-//
-//	}
 }

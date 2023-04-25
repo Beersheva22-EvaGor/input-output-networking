@@ -83,7 +83,7 @@ default long readLong(String prompt, String errorPrompt, long min, long max) {
 	});
 }
 default LocalDate readDateISO(String prompt, String errorPrompt) {	
-	return readDate(prompt, errorPrompt, "yyyy-MM-dd ", LocalDate.MIN, LocalDate.MAX);
+	return readDate(prompt, errorPrompt, "yyyy-MM-dd", LocalDate.MIN, LocalDate.MAX);
 }
 default LocalDate readDate(String prompt, String errorPrompt, String format,
 		LocalDate min, LocalDate max) {

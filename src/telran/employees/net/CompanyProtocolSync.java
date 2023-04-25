@@ -1,18 +1,22 @@
 package telran.employees.net;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
-import telran.employees.*;
+import telran.employees.Company;
+import telran.employees.Employee;
+import telran.employees.PairId;
 import telran.net.Protocol;
 import telran.net.Request;
 import telran.net.Response;
 import telran.net.ResponseCode;
 
-public class CompanyProtocol implements Protocol {
-	ICompany company; 
+public class CompanyProtocolSync implements Protocol {
+	Company company;
 	@Override
-	public  Response getResponse(Request request) {
+	public synchronized Response getResponse(Request request) {
 		Response response = null;
 		try {
 			Method method = getClass().getDeclaredMethod(request.type,
@@ -62,7 +66,7 @@ public class CompanyProtocol implements Protocol {
 		company.save(filePath);
 		return "";
 	}
-	Serializable restore(Serializable data) {
+	Serializable retsore(Serializable data) {
 		String filePath = (String)data;
 		company.restore(filePath);
 		return "";
@@ -79,8 +83,8 @@ public class CompanyProtocol implements Protocol {
 		company.updateDepartment(idDepartment.id(), idDepartment.value());
 		return "";
 	}
-	public CompanyProtocol(ICompany company2) {
-		this.company = company2;
+	public CompanyProtocolSync(Company company) {
+		this.company = company;
 	}
 	
 	

@@ -1,5 +1,6 @@
 package telran.employees.apllication.controller.graphics;
 
+import telran.employees.EmployeeClientAppl;
 import telran.employees.apllication.controller.*;
 import telran.employees.net.application.CompanyTcpApplication;
 import telran.view.InputOutput;
@@ -12,9 +13,9 @@ public class GraphicalMenu {
 		
 		IO = new Frame();
 
-			CompanyAppl appl = new CompanyAppl(IO);
-			appl.main(null);
-		
+			EmployeeClientAppl appl = new EmployeeClientAppl();
+			appl.setIO(IO);
+			appl.main(null);		
 	}
 	
 }

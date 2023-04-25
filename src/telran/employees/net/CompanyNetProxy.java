@@ -79,5 +79,15 @@ public class CompanyNetProxy implements ICompany, Closeable {
 		client.close();
 		
 	}
+	@Override
+	public void updateSalary(long emplId, int newSalary) {
+		client.send("updateSalary", new AbstractMap.SimpleEntry<>(emplId, newSalary));
+		
+	}
+	@Override
+	public void updateDepartment(long emplId, String newDepartment) {
+		client.send("updateDepartment", new AbstractMap.SimpleEntry<>(emplId, newDepartment));
+		
+	}
 
 }
